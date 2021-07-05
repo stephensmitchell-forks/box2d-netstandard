@@ -34,20 +34,20 @@ namespace Box2D.NetStandard.Dynamics.Contacts
 {
 	internal class EdgeAndPolygonContact : Contact
 	{
-		private static readonly Collider<EdgeShape,PolygonShape> collider = new EdgeAndPolygonCollider();
+		private static readonly Collider<EdgeShape, PolygonShape> collider = new EdgeAndPolygonCollider();
 
+		private readonly EdgeShape edgeA;
+		private readonly PolygonShape polygonB;
 
-
-		internal static void Destroy(ref Contact contact)
+		public EdgeAndPolygonContact(Fixture fA, int indexA, Fixture fB, int indexB) : base(fA, indexA, fB, indexB)
 		{
-			contact = null;
+			edgeA = (EdgeShape) m_fixtureA.Shape;
+			polygonB = (PolygonShape) m_fixtureB.Shape;
 		}
 
-		internal override void Evaluate(out Manifold manifold, in Transform xfA, in Transform xfB) {
-			collider.Collide(out manifold, (EdgeShape) m_fixtureA.Shape, in xfA,
-			                                          (PolygonShape) m_fixtureB.Shape, in xfB);
+		internal override void Evaluate(out Manifold manifold, in Transform xfA, in Transform xfB)
+		{
+			collider.Collide(out manifold, edgeA, in xfA, polygonB, in xfB);
 		}
-
-		public EdgeAndPolygonContact(Fixture fA, int indexA, Fixture fB, int indexB) : base(fA, indexA, fB, indexB) { }
 	}
 }

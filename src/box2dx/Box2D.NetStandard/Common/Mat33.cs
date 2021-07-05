@@ -30,13 +30,14 @@ using System.Numerics;
 namespace Box2D.NetStandard.Common
 {
 	/// <summary>
-	/// A 3-by-3 matrix. Stored in column-major order.
+	///  A 3-by-3 matrix. Stored in column-major order.
 	/// </summary>
 	internal struct Mat33
 	{
 		internal Vector3 ex, ey, ez;
+
 		/// <summary>
-		/// Construct this matrix using columns.
+		///  Construct this matrix using columns.
 		/// </summary>
 		internal Mat33(Vector3 c1, Vector3 c2, Vector3 c3)
 		{
@@ -46,7 +47,7 @@ namespace Box2D.NetStandard.Common
 		}
 
 		/// <summary>
-		/// Set this matrix to all zeros.
+		///  Set this matrix to all zeros.
 		/// </summary>
 		internal void SetZero()
 		{
@@ -56,55 +57,73 @@ namespace Box2D.NetStandard.Common
 		}
 
 		/// <summary>
-		/// Solve A * x = b, where b is a column vector. This is more efficient
-		/// than computing the inverse in one-shot cases.
+		///  Solve A * x = b, where b is a column vector. This is more efficient
+		///  than computing the inverse in one-shot cases.
 		/// </summary>
 		internal Vector3 Solve33(Vector3 b)
 		{
 			float det = Vector3.Dot(ex, Vector3.Cross(ey, ez));
 			//Debug.Assert(det != 0.0f);
-			det = 1.0f / det;
-			Vector3 x = new Vector3();
-			x.X = det * Vector3.Dot(b,  Vector3.Cross(ey, ez));
+			if (det != 0.0f)
+			{
+				det = 1.0f / det;
+			}
+			var x = new Vector3();
+			x.X = det * Vector3.Dot(b, Vector3.Cross(ey, ez));
 			x.Y = det * Vector3.Dot(ex, Vector3.Cross(b, ez));
 			x.Z = det * Vector3.Dot(ex, Vector3.Cross(ey, b));
 			return x;
 		}
 
 		/// <summary>
-		/// Solve A * x = b, where b is a column vector. This is more efficient
-		/// than computing the inverse in one-shot cases. Solve only the upper
-		/// 2-by-2 matrix equation.
+		///  Solve A * x = b, where b is a column vector. This is more efficient
+		///  than computing the inverse in one-shot cases. Solve only the upper
+		///  2-by-2 matrix equation.
 		/// </summary>
 		internal Vector2 Solve22(Vector2 b)
 		{
 			float a11 = ex.X, a12 = ey.X, a21 = ex.Y, a22 = ey.Y;
 			float det = a11 * a22 - a12 * a21;
 			//Debug.Assert(det != 0.0f);
-			det = 1.0f / det;
-			Vector2 x = new Vector2();
+			if (det != 0.0f)
+			{
+				det = 1.0f / det;
+			}
+			var x = new Vector2();
 			x.X = det * (a22 * b.X - a12 * b.Y);
 			x.Y = det * (a11 * b.Y - a21 * b.X);
 			return x;
 		}
 
-		internal void GetInverse22(Mat33 M) {
-			float a   = ex.X, b = ey.X, c = ex.Y, d = ey.Y;
+		internal Mat33 GetInverse22(Mat33 M)
+		{
+			float a = ex.X, b = ey.X, c = ex.Y, d = ey.Y;
 			float det = a * d - b * c;
 			if (det != 0.0f)
 			{
 				det = 1.0f / det;
 			}
 
-			M.ex.X = det  * d;	M.ey.X = -det * b; M.ex.Z = 0.0f;
-			M.ex.Y = -det * c;	M.ey.Y = det  * a; M.ey.Z = 0.0f;
-			M.ez.X = 0.0f; M.ez.Y     = 0.0f; M.ez.Z     = 0.0f;
+			M.ex.X = det * d;
+			M.ey.X = -det * b;
+			M.ex.Z = 0.0f;
+			M.ex.Y = -det * c;
+			M.ey.Y = det * a;
+			M.ey.Z = 0.0f;
+			M.ez.X = 0.0f;
+			M.ez.Y = 0.0f;
+			M.ez.Z = 0.0f;
+
+			return M;
 		}
-		
-		internal void GetSymInverse33(Mat33 M)
+
+		internal Mat33 GetSymInverse33(Mat33 M)
 		{
 			float det = Vector3.Dot(ex, Vector3.Cross(ey, ez));
-			if (det != 0.0f) det = 1.0f / det;
+			if (det != 0.0f)
+			{
+				det = 1.0f / det;
+			}
 
 			float a11 = ex.X, a12 = ey.X, a13 = ez.X;
 			float a22 = ey.Y, a23 = ez.Y;
@@ -121,6 +140,8 @@ namespace Box2D.NetStandard.Common
 			M.ez.X = M.ex.Z;
 			M.ez.Y = M.ey.Z;
 			M.ez.Z = det * (a11 * a22 - a12 * a12);
+
+			return M;
 		}
 	}
 }
